@@ -27,34 +27,34 @@ class(coverDT)
 
 
 #Funtion to club/regroup the data in one column
-reGroup <- function(oldColumns, newLabels, columnName){
+reGroup = function(oldColumns, newLabels, columnName){
   for(i in 1:length(newLabels)) {
-    coverDT<-coverDT[get(oldColumns[i])==1,paste(columnName):=newLabels[i]]
+    coverDT=coverDT[get(oldColumns[i])==1,paste(columnName):=newLabels[i]]
   }
 }
 
 # Dummy old columns and new labels of Wilderness Area
-newLabels <- c("Rawah","Neota","Comanche Peak","Cache la Poudre")
-oldColumns <- c("Wilderness_Area1","Wilderness_Area2","Wilderness_Area3","Wilderness_Area4")
-columnName <- "Wilderness_Area"
+newLabels = c("Rawah","Neota","Comanche Peak","Cache la Poudre")
+oldColumns = c("Wilderness_Area1","Wilderness_Area2","Wilderness_Area3","Wilderness_Area4")
+columnName = "Wilderness_Area"
 
 # Regrouping Wilderness Area
 reGroup(oldColumns, newLabels, columnName)
 
-newLabels<-c('1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31','32','33','34','35','36','37','38','39','40')
-oldColumns <- c("Soil_Type1","Soil_Type2","Soil_Type3","Soil_Type4","Soil_Type5","Soil_Type6","Soil_Type7","Soil_Type8",
+newLabels=c('1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31','32','33','34','35','36','37','38','39','40')
+oldColumns = c("Soil_Type1","Soil_Type2","Soil_Type3","Soil_Type4","Soil_Type5","Soil_Type6","Soil_Type7","Soil_Type8",
                 "Soil_Type9","Soil_Type10","Soil_Type11","Soil_Type12","Soil_Type13","Soil_Type14","Soil_Type15","Soil_Type16",
                 "Soil_Type17","Soil_Type18","Soil_Type19","Soil_Type20","Soil_Type21","Soil_Type22","Soil_Type23","Soil_Type24",
                 "Soil_Type25","Soil_Type26","Soil_Type27","Soil_Type28","Soil_Type29","Soil_Type30","Soil_Type31","Soil_Type32",
                 "Soil_Type33","Soil_Type34","Soil_Type35","Soil_Type36","Soil_Type37","Soil_Type38","Soil_Type39","Soil_Type40")
-columnName <- "Soil_Type"
+columnName = "Soil_Type"
 
 # Regrouping Soil Types under one column
 reGroup(oldColumns, newLabels, columnName)
 
 
 # Removing the dummy columns
-coverDT <- coverDT[,colnames(coverDT[,12:55,with=F]):=NULL]
+coverDT = coverDT[,colnames(coverDT[,12:55,with=F]):=NULL]
 
 #Cover_Type Names:
 #Spruce/Fir
@@ -114,35 +114,35 @@ ggplot(coverData, aes(Soil_Type, fill=as.factor(Cover_Type))) +
 rm(coverData)
 
 # Read training data
-coverDataTrain <- data.table::fread("../input/train.csv",header=T)
+coverDataTrain = data.table::fread("../input/train.csv",header=T)
 
   # Read test data
-  coverDataTest  <- data.table::fread("../input/test.csv",header=T)
+  coverDataTest  = data.table::fread("../input/test.csv",header=T)
 
   # Summary of train data
   summary(coverDataTrain)
   
 #Soil_Type7 and Soil_Type15 have zero variance. So, lets not consider them for model building exercise.
   # Removing Soil_Type7 and Soil_Type15
-  coverDataTrain <- coverDataTrain[,Soil_Type7:=NULL]
-  coverDataTrain <- coverDataTrain[,Soil_Type15:=NULL]
+  coverDataTrain = coverDataTrain[,Soil_Type7:=NULL]
+  coverDataTrain = coverDataTrain[,Soil_Type15:=NULL]
   
   # Converting categorical to factors
-  coverDataTrain[,12:54] <- lapply(coverDataTrain[,12:54], as.factor)
-  coverDataTest[,12:55] <- lapply(coverDataTest[,12:55], as.factor)
+  coverDataTrain[,12:54] = lapply(coverDataTrain[,12:54], as.factor)
+  coverDataTest[,12:55] = lapply(coverDataTest[,12:55], as.factor)
   
   # Let create samples of devlopment and validation set from the training data
   set.seed(123)
-  sample <- sample(2, nrow(coverDataTrain), replace = T, prob = c(0.8,0.2))
-  coverDataDev <- coverDataTrain[sample==1,]
-  coverDataVal <- coverDataTrain[sample==2,]
+  sample = sample(2, nrow(coverDataTrain), replace = T, prob = c(0.8,0.2))
+  coverDataDev = coverDataTrain[sample==1,]
+  coverDataVal = coverDataTrain[sample==2,]
   
   # Checking balance of distribution between Development and Validation set
   table(coverDataDev$Cover_Type)/nrow(coverDataDev)
   table(coverDataVal$Cover_Type)/nrow(coverDataVal)
   
   # Creating a Random Forest model for Cover Type classification
-  mod <- randomForest(Cover_Type ~ .-Id, data=coverDataDev, mtry=sqrt(ncol(coverDataDev)), ntree = 300, importance =T, do.trace=25)
+  mod = randomForest(Cover_Type ~ .-Id, data=coverDataDev, mtry=sqrt(ncol(coverDataDev)), ntree = 300, importance =T, do.trace=25)
 
 #Printing RF model info
 print(mod)
@@ -161,7 +161,7 @@ plot(mod)
 
 
 # Predicting Cover Type on validation set
-coverDataVal$predictedCoverType <- predict(mod,coverDataVal)
+coverDataVal$predictedCoverType = predict(mod,coverDataVal)
 
   # Creating Confusion Matrix
   confusionMatrix(data=coverDataVal$predictedCoverType,
@@ -169,9 +169,9 @@ coverDataVal$predictedCoverType <- predict(mod,coverDataVal)
                   positive='yes')
   
   # Prediciton on test data set
-  coverDataTest$CoverType <- predict(mod,coverDataTest)
+  coverDataTest$CoverType = predict(mod,coverDataTest)
   
   # Creating submission file for upload
-  submission <- as.data.frame(cbind(Id = coverDataTest$Id, Cover_Type = coverDataTest$CoverType))
+  submission = as.data.frame(cbind(Id = coverDataTest$Id, Cover_Type = coverDataTest$CoverType))
 
   write.csv(submission, "output.csv", row.names=FALSE)
